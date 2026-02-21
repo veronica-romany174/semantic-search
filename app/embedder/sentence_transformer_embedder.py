@@ -55,7 +55,16 @@ class SentenceTransformerEmbedder(Embedder):
         if self._model is None:
             logger.info("Loading embedding model '%s' …", self._model_name)
             try:
+                import logging
+                import transformers
                 from sentence_transformers import SentenceTransformer
+
+                # Suppress the verbose LOAD REPORT ("UNEXPECTED: embeddings.position_ids")
+                # emitted by sentence-transformers/PyTorch on every cold start.
+                # This is a known-harmless checkpoint mismatch for all-MiniLM-L6-v2;
+                # hiding it at ERROR level keeps logs clean without masking real problems.
+                transformers.logging.set_verbosity_error()
+                logging.getLogger("sentence_transformers").setLevel(logging.WARNING)
 
                 self._model = SentenceTransformer(self._model_name)
                 logger.info(
