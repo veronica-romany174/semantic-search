@@ -21,6 +21,10 @@ class Settings(BaseSettings):
     # ── Embedder ───────────────────────────────────────────────────────────────
     embedding_model: str = "all-MiniLM-L6-v2"
 
+    # ── Chunker ────────────────────────────────────────────────────────────────
+    chunk_size: int = 1000      # max characters per chunk
+    chunk_overlap: int = 150    # characters shared between consecutive chunks
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
