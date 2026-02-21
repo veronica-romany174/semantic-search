@@ -46,4 +46,3 @@ class TestHealth:
         """Response Content-Type must be application/json."""
         response = client.get("/health")
         assert "application/json" in response.headers["content-type"]
-fixtures

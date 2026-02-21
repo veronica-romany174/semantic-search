@@ -14,6 +14,10 @@ class Settings(BaseSettings):
     app_version: str = "1.0.0"
     debug: bool = False
 
+    # ── Vector store (ChromaDB) ────────────────────────────────────────────────
+    chroma_persist_dir: str = "./data/chroma"
+    chroma_collection: str = "documents"
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
