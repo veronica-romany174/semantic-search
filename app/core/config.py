@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     chroma_persist_dir: str = "./data/chroma"
     chroma_collection: str = "documents"
 
+    # ── Embedder ───────────────────────────────────────────────────────────────
+    embedding_model: str = "all-MiniLM-L6-v2"
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
