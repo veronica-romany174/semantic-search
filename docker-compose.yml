@@ -1,0 +1,30 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: semantic-search:latest
+    container_name: semantic-search-app
+    ports:
+      - "8000:8000"
+    volumes:
+      # ChromaDB persistent vector store.
+      # Removed on `orchestrate.sh --action terminate` (--volumes flag).
+      - chroma_data:/app/data/chroma
+    env_file:
+      - path: .env
+        required: false # .env is optional; copy from .env.example if needed
+    environment:
+      # Override the local relative path; inside the container it's always /app/data/chroma
+      CHROMA_PERSIST_DIR: /app/data/chroma
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s # Allow time for model to load on first start
+
+volumes:
+  chroma_data:
+    name: semantic-search-chroma-data

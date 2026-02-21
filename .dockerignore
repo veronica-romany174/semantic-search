@@ -1,0 +1,40 @@
+# ── Virtual environment & caches ───────────────────────────────────────────────
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# ── Local runtime data (not needed in image — mounted as a volume) ─────────────
+data/
+*.sqlite3
+
+# ── Test files ─────────────────────────────────────────────────────────────────
+tests/
+pytest.ini
+requirements-dev.txt
+
+# ── Secrets & local config ─────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ── IDE & OS ───────────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# ── Git ────────────────────────────────────────────────────────────────────────
+.git/
+.gitignore
+
+# ── Documentation & misc ───────────────────────────────────────────────────────
+*.md
+*.pdf
+DATA/
+swagger.yaml
+orchestrate.sh
