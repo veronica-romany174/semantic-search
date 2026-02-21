@@ -33,9 +33,23 @@ if [[ -z "$ACTION" ]]; then
     exit 1
 fi
 
+# ── Helpers ────────────────────────────────────────────────────────────────────
+
+free_port() {
+    local port=8000
+    # fuser returns exit code 1 when nothing is on the port — suppress that.
+    if fuser "${port}/tcp" &>/dev/null; then
+        echo "⚠  Port ${port} is in use — killing the process..."
+        fuser -k "${port}/tcp" &>/dev/null || true
+        sleep 1   # give the OS a moment to release the socket
+        echo "   Port ${port} is now free."
+    fi
+}
+
 # ── Actions ────────────────────────────────────────────────────────────────────
 
 start() {
+    free_port
     echo "▶  Building and starting Semantic Search stack..."
     docker compose up --build -d
     echo ""
