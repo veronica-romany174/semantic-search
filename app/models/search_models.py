@@ -4,8 +4,8 @@ app/models/search_models.py
 Pydantic DTOs for the search flow — request body and response.
 """
 
-from typing import List
-from pydantic import BaseModel, field_validator
+from typing import List, Optional
+from pydantic import BaseModel, Field, field_validator
 
 
 class SearchRequest(BaseModel):
@@ -13,9 +13,16 @@ class SearchRequest(BaseModel):
     JSON body for POST /search/.
 
         { "query": "Explain how vector embeddings work." }
+        { "query": "Explain how vector embeddings work.", "top_k": 10 }
     """
 
     query: str
+    top_k: Optional[int] = Field(
+        default=None,
+        ge=1,
+        le=100,
+        description="Max results to return. Defaults to the server-side SEARCH_TOP_K setting.",
+    )
 
     @field_validator("query")
     @classmethod

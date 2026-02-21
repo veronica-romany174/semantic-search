@@ -25,6 +25,9 @@ class Settings(BaseSettings):
     chunk_size: int = 1000      # max characters per chunk
     chunk_overlap: int = 150    # characters shared between consecutive chunks
 
+    # ── Search ───────────────────────────────────────────────────────────────────
+    search_top_k: int = 5       # default number of results returned per query
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

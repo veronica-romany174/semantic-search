@@ -54,7 +54,7 @@ async def search(body: SearchRequest) -> JSONResponse:
 
     # ── Delegate to service ────────────────────────────────────────────────────
     try:
-        result: SearchResponse = await search_service.search(query)
+        result: SearchResponse = await search_service.search(query, top_k=body.top_k)
 
     except EmptyQueryError as exc:
         logger.warning("Empty query rejected by service: %s", exc)
