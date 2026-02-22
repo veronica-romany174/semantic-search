@@ -36,8 +36,9 @@ COPY app/ ./app/
 RUN useradd --create-home appuser && chown -R appuser /app
 USER appuser
 
-# ChromaDB will write to /app/data/chroma — Docker Compose mounts a volume here
-RUN mkdir -p /app/data/chroma
+# ChromaDB will write to /app/data/chroma — Docker Compose mounts a volume here.
+# /app/uploads is used as a staging area when ingesting directories via docker cp.
+RUN mkdir -p /app/data/chroma /app/uploads
 
 EXPOSE 8000
 

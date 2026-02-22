@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import List, Optional
 
 from fastapi import APIRouter, Request, UploadFile
+from starlette.datastructures import UploadFile as StarletteUploadFile
 from fastapi.responses import JSONResponse
 
 from app.core.exceptions import AppBaseException, InvalidFileTypeError
@@ -89,7 +90,7 @@ async def ingest(request: Request) -> JSONResponse:
     for key, value in form._list:  # type: ignore[attr-defined]
         if key != "input":
             continue
-        if isinstance(value, UploadFile):
+        if isinstance(value, StarletteUploadFile):
             uploaded_files.append(value)
         elif isinstance(value, str):
             stripped = value.strip()
