@@ -1,18 +1,24 @@
 """
 app/api/ingest_controller.py
 
-HTTP layer for POST /ingest/.
+Handles incoming requests to POST /ingest/.
 
-Responsibilities (HTTP concerns only):
-  - Parse multipart/form-data and detect whether input is file(s) or a path
-  - Validate: field present, only PDF files accepted, no mixing of modes
-  - Delegate to IngestService
-  - Map service exceptions to the correct HTTP status codes
+This layer is responsible only for HTTP concerns:
+  - Parsing the multipart form and detecting whether the caller sent
+    file bytes, multiple file bytes, or a directory path string.
+  - Validating that all uploaded files are PDFs and that the caller
+    did not mix file uploads with a directory path in the same request.
+  - Delegating the actual processing to IngestService.
+  - Translating service-level errors into appropriate HTTP responses.
 
-Response shapes match the swagger spec exactly:
-  200 → { "message": "...", "files": [...] }
-  400 → { "error": "..." }
-  500 → { "error": "..." }
+Responses:
+  200  Ingestion succeeded.  Body contains a human-readable message and
+       the list of file names that were successfully stored.
+  400  The request was rejected before processing began — for example,
+       the 'input' field was missing, a non-PDF file was supplied, or
+       file uploads and a directory path were combined in one request.
+  500  An unexpected error occurred while processing the files — for
+       example, a PDF could not be parsed or the vector store failed.
 """
 
 from pathlib import Path
@@ -24,18 +30,13 @@ from fastapi.responses import JSONResponse
 
 from app.core.exceptions import AppBaseException, InvalidFileTypeError
 from app.core.logger import get_logger
+from app.core.constants import ALLOWED_PDF_EXTENSION, ALLOWED_PDF_CONTENT_TYPE
 from app.models.ingest_models import IngestResponse
 from app.services.ingest_service import ingest_service
 
 logger = get_logger(__name__)
 
 router = APIRouter(prefix="/ingest", tags=["Ingest"])
-
-# ── Constants ──────────────────────────────────────────────────────────────────
-
-_ALLOWED_EXTENSION = ".pdf"
-_ALLOWED_CONTENT_TYPE = "application/pdf"
-
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -46,11 +47,10 @@ def _is_valid_pdf(file: UploadFile) -> bool:
     Rule: filename extension MUST be .pdf (case-insensitive).
           If the client also supplies a content-type it must be application/pdf.
     """
-    extension_ok = Path(file.filename or "").suffix.lower() == _ALLOWED_EXTENSION
+    extension_ok = Path(file.filename or "").suffix.lower() == ALLOWED_PDF_EXTENSION
     if not extension_ok:
         return False
-    # content_type may be absent / empty — only fail if explicitly wrong
-    if file.content_type and file.content_type != _ALLOWED_CONTENT_TYPE:
+    if file.content_type and file.content_type != ALLOWED_PDF_CONTENT_TYPE:
         return False
     return True
 

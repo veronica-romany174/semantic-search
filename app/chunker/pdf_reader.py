@@ -1,11 +1,11 @@
 """
 app/chunker/pdf_reader.py
 
-PDF text extraction using PyMuPDF (fitz).
+Extracts plain text from PDF documents using PyMuPDF (fitz).
 
-Single responsibility: open raw PDF bytes → return a dict mapping
-1-indexed page numbers to their extracted text. Everything else
-(chunking, embedding) is handled by downstream components.
+Responsibility: given raw PDF bytes, open the document and return a
+mapping of 1-indexed page numbers to the text content of each page.
+Pages with no extractable text are omitted from the result.
 """
 
 from __future__ import annotations

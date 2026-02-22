@@ -1,17 +1,22 @@
 """
 app/api/search_controller.py
 
-HTTP layer for POST /search/.
+Handles incoming requests to POST /search/.
 
-Responsibilities (HTTP concerns only):
-  - Parse and validate the JSON request body
-  - Delegate to SearchService
-  - Map service exceptions to the correct HTTP status codes
+This layer is responsible only for HTTP concerns:
+  - Parsing and validating the JSON request body, ensuring the query
+    field is present and not empty.
+  - Delegating the semantic search to SearchService.
+  - Translating service-level errors into appropriate HTTP responses.
 
-Response shapes match the swagger spec exactly:
-  200 → { "results": [ { "document", "score", "content" }, ... ] }
-  400 → { "error": "..." }
-  500 → { "error": "..." }
+Responses:
+  200  Search completed successfully.  Body contains a list of results,
+       each with the source document name, a relevance score between 0
+       and 1, and the matching text chunk.  An empty list means no
+       documents have been ingested yet or nothing matched the query.
+  400  The request was malformed — for example, the query field was
+       missing or contained only whitespace.
+  500  An unexpected error occurred while performing the search.
 """
 
 from fastapi import APIRouter
@@ -31,7 +36,7 @@ router = APIRouter(prefix="/search", tags=["Search"])
 # ── Helpers ────────────────────────────────────────────────────────────────────
 
 def _err(message: str, status: int = 400) -> JSONResponse:
-    """Return a JSON error response matching the swagger error schema."""
+    """Return a JSON error response with the standard error shape."""
     return JSONResponse(status_code=status, content={"error": message})
 
 
@@ -40,14 +45,19 @@ def _err(message: str, status: int = 400) -> JSONResponse:
 @router.post("/", response_model=SearchResponse, summary="Perform semantic search")
 async def search(body: SearchRequest) -> JSONResponse:
     """
-    Accepts a JSON body:
-        { "query": "Explain how vector embeddings work." }
+    Accepts a JSON body with the following fields:
 
-    Returns the top-K semantically similar chunks from the ingested documents.
+      query   (required) — the natural-language question or phrase to search for.
+      top_k   (optional) — how many results to return.  Must be between 1 and 100.
+                           Defaults to the value of SEARCH_TOP_K in settings
+                           (5 unless overridden via environment variable).
+
+    Returns a ranked list of the most semantically similar text chunks found
+    across all ingested documents, ordered from most to least relevant.
+    Each result includes the source document name, a relevance score, and
+    the matching text excerpt.
     """
-    # Pydantic already validated and stripped the query via SearchRequest's
-    # field_validator. If the query was blank, FastAPI returns 422 automatically.
-    # We raise an explicit 400 here to match the swagger error shape exactly.
+    
     query = body.query
 
     logger.info("Search request received — query: '%s'", query[:120])

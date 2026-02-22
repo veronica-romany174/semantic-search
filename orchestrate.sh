@@ -110,8 +110,7 @@ ingest() {
     if [[ ${#PATHS[@]} -eq 1 && -d "${PATHS[0]}" ]]; then
         # ── DIRECTORY MODE ─────────────────────────────────────────────────────
         # How it works:
-        #   1. docker cp copies the directory contents into the container at
-        #      /app/uploads — no permanent bind mount needed.
+        #   1. docker cp copies the directory contents into the container at /app/uploads 
         #   2. curl sends -F "input=/app/uploads" (a path string) so the server
         #      walks the directory and ingests every PDF it finds.
         #   3. The staging area is cleaned up immediately after ingest.

@@ -8,7 +8,9 @@ Orchestrates the semantic search pipeline:
            └─ VectorStore.query() → [StoreResult]
                 └─ Map → SearchResponse
 
-Same constructor-injection pattern as IngestService.
+Embedder and VectorStore are constructor-injected so tests can swap
+them out with mocks; the module-level singleton wires in the real
+production implementations.
 """
 
 from __future__ import annotations

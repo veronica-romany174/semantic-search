@@ -4,8 +4,7 @@ app/embedder/sentence_transformer_embedder.py
 SentenceTransformer implementation of the Embedder interface.
 
 The model is loaded lazily on first use so the FastAPI startup event
-remains fast even on cold starts. All sentence_transformers details are
-fully contained here — the rest of the application sees only Embedder.
+remains fast even on cold starts.
 """
 
 from __future__ import annotations

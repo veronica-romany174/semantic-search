@@ -5,7 +5,6 @@ Abstract interface for the vector store layer.
 
 Design goals:
   - Services depend only on this interface, never on a concrete backend.
-  - Swapping ChromaDB for Qdrant/FAISS/etc. requires changes in ONE file only.
   - TextChunk and StoreResult are the shared vocabulary across all layers.
 """
 
